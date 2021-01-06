@@ -9,7 +9,7 @@ def entry(request, pk):
 	try:
 		queried_anime = Anime.objects.get(pk=pk)
 	except ObjectDoesNotExist:
-		return Response({"Error": "Invalid anime id."})
+		return Response({"error": "Invalid anime id."})
 
 	serializer = AnimeSerializer(queried_anime, many=False)
 	return Response(serializer.data)
