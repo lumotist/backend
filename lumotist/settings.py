@@ -52,7 +52,11 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSIONS_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ]
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DATETIME_FORMAT': "%d-%m-%Y",
 }
 
 AUTH_USER_MODEL = "account.User"

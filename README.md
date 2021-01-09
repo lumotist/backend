@@ -95,9 +95,10 @@ Example successful response:
 	{
 	    "success": true,
 	    "data": {
-	        "id": 1,
-	        "username": "test",
-	        "email": "test@test.com"
+	        "id": 2,
+	        "username": "test1",
+	        "email": "test@test.com1",
+	        "created": "09-01-2021"
 	    }
 	}
 
