@@ -1,4 +1,7 @@
-# Update if the images are depreciated
+# Update if the pictures are depreciated
+
+default_profile_picture = "https://davidnelsoncollins.com/wp-content/uploads/2018/11/profiles-empty1.png"
+
 profile_pictures = {
 	"male": [
 		{

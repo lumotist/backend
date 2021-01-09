@@ -1,3 +1,5 @@
+**Currently deployed at:** [api-lumotist.herokuapp.com](https://api-lumotist.herokuapp.com])
+
 # API Endpoints
 ## Account Endpoints
 	/account/register
@@ -32,7 +34,7 @@ Example error response for missing auth token:
 	}
 
 ### Register
-Performing a POST request with the new users `username`, `email` and `password` will register that user, and return a auth token.
+Performing a POST request to `/account/register` with the new users `username`, `email` and `password` will register that user, and return a auth token.
 Example POST request:
 
 	{
@@ -63,7 +65,7 @@ Example error response:
 	}
 
 ### Login
-Performing a POST request with the users `username` and `password` will return a auth token.
+Performing a POST request to `/account/login` with the users `username` and `password` will return a auth token.
 
 **Note:** If there is already a auth token generated for that user, it will return that auth token.
 
@@ -89,7 +91,7 @@ Example error response:
 	}
 
 ### Logout **(auth token required)**
-Performing a POST request with the users token in the **headers** will delete that auth token.
+Performing a POST request to `/account/logout` with the users token in the **headers** will delete that auth token.
 
 Example POST request **(headers)**:
 
@@ -106,7 +108,7 @@ Example successful response:
 To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
 
 ### Profile **(auth token required)**
-Performing a GET request with the users token in the **headers** will return the data for that user.
+Performing a GET request to `/account/profile` with the users token in the **headers** will return the data for that user.
 
 Example GET request **(headers)**:
 
@@ -129,7 +131,7 @@ Example successful response:
 To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
 
 ### Delete **(auth token required)**
-Performing a POST request with the users token in the **headers** will delete that user and the auth token.
+Performing a POST request to `/account/delete` with the users token in the **headers** will delete that user and the auth token.
 
 Example POST request **(headers)**:
 
@@ -140,7 +142,46 @@ Example POST request **(headers)**:
 Example successful response:
 
 	{
-	    "success": true,
+	    "success": true
 	}
 
 To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
+
+## Get Pictures **(auth token required)**
+Performing a GET request to `/account/get_pictures` with the users token in the **headers** will return all the pictures that the user can set as their profile picture.
+
+Example GET request **(headers)**:
+
+	{
+	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
+	}
+
+Successful response will return the `profile_pictures` dictionary in [profile_pictures.py](https://github.com/lumotist/backend/blob/master/account/profile_pictures.py).
+
+To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
+
+### Set Picture
+Performing a POST request to `/account/set_picture` with the picture `id` from `/account/get_pictures` will update the users profile picture.
+
+**Note:** After registration, by default the users profile picture is set to `default_profile_picture` in [profile_pictures.py](https://github.com/lumotist/backend/blob/master/account/profile_pictures.py).
+
+Example POST request:
+
+	{
+	    "id": 6
+	}
+
+Example successful response:
+
+	{
+	    "success": true
+	}
+
+Example error response:
+
+	{
+	    "success": false,
+	    "error": "Invalid picture id."
+	}
+
+To see example auth error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
