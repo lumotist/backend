@@ -7,4 +7,5 @@ urlpatterns = [
     path('login', obtain_auth_token, name="account_login"),
     path('logout', views.logout, name="account_logout"),
     path('profile', views.profile, name="account_profile"),
+    path('delete', views.delete, name="account_delete"),
 ]

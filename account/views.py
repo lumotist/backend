@@ -36,3 +36,13 @@ def profile(request):
 	data["data"] = UserSerializer(request.user).data
 
 	return Response(data)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def delete(request):
+	data = {}
+	request.user.auth_token.delete()
+	request.user.delete()
+	data["success"] = True
+
+	return Response(data)

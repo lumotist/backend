@@ -4,6 +4,7 @@
 	/account/login
 	/account/logout
 	/account/profile
+	/account/delete
 
 ### Register
 Performing a POST request with the new users `username`, `email` and `password` will register that user, and return a auth token.
@@ -108,6 +109,25 @@ Example error response:
 	    "detail": "Invalid token."
 	}
 
+### Delete
+Performing a POST request with the users token in the **headers** will delete that user and the auth token.
+Example POST request **(headers)**:
+
+	{
+	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
+	}
+
+Example successful response:
+
+	{
+	    "success": true,
+	}
+
+Example error response:
+
+	{
+	    "detail": "Invalid token."
+	}
 
 ### Permissions
 Whenever using a endpoint that needs authentication, add the auth token in the **headers**.
