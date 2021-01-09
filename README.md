@@ -3,10 +3,10 @@
 	/account/register
 	/account/login
 	/account/logout
-	/account/logoutall
+	/account/profile
 
 ### Register
-Performing a POST request with the new users data will register that user, and return a auth token.
+Performing a POST request with the new users `username`, `email` and `password` will register that user, and return a auth token.
 Example POST request:
 
 	{
@@ -18,24 +18,29 @@ Example POST request:
 Example successful response:
 
 	{
-	    "user": {
-	        "id": 18,
-	        "username": "test",
-	        "email": "test@test.com"
-	    },
-	    "token": "22c1455447b5ee0310cab3f194e3f5559d06f95ec512df15f3751cd58c514d4f"
+	    "success": true,
+	    "token": "b68e6599d205430b37c6d3bde5b174ca3af1f385"
 	}
 
 Example error response:
 
 	{
-	    "username": [
-	        "A user with that username already exists."
-	    ]
+	    "success": false,
+	    "errors": {
+	        "username": [
+	            "user with this username already exists."
+	        ],
+	        "email": [
+	            "user with this email already exists."
+	        ]
+	    }
 	}
 
 ### Login
-Performing a POST request with the users data will return a auth token.
+Performing a POST request with the users `username` and `password` will return a auth token.
+
+**Note:** If there is already a auth token generated for that user, it will return that auth token.
+
 Example POST request:
 
 	{
@@ -46,8 +51,7 @@ Example POST request:
 Example successful response:
 
 	{
-	    "expiry": "2021-01-07T03:46:41.006710Z",
-	    "token": "9f8bdef7e4d3f886e41979f2a09a191e33c95c1fb97aa72e094ecf94405e9809"
+	    "token": "b68e6599d205430b37c6d3bde5b174ca3af1f385"
 	}
 
 Example error response:
@@ -63,10 +67,14 @@ Performing a POST request with the users token in the **headers** will delete th
 Example POST request **(headers)**:
 
 	{
-	    "Authorization": "Token c00a11c6fe08ed0e6a8e957214ea9fa7a70374f05dc9d8e9bd29987f4ec73a80"
+	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
 	}
 
-If the token is valid there will be no response.
+Example successful response:
+
+	{
+	    "success": true
+	}
 
 Example error response:
 
@@ -74,113 +82,37 @@ Example error response:
 	    "detail": "Invalid token."
 	}
 
-### Logoutall
-Performing a POST request with one of the users token in the **headers** will delete all the auth tokens for that user.
-Example POST request **(headers)**:
+### Profile
+Performing a GET request with the users token in the **headers** will return the data for that user.
+Example GET request **(headers)**:
 
 	{
-	    "Authorization": "Token 57ad0a6d4e422ff2b57ada2e5a810688220f7db7332759c7b98972de82bf3341"
+	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
 	}
 
-If the token is valid there will be no response.
+Example successful response:
+
+	{
+	    "success": true,
+	    "data": {
+	        "id": 1,
+	        "username": "test",
+	        "email": "test@test.com"
+	    }
+	}
 
 Example error response:
 
 	{
 	    "detail": "Invalid token."
 	}
+
 
 ### Permissions
 Whenever using a endpoint that needs authentication, add the auth token in the **headers**.
 
 	{
-	    "Authorization": "Token 57ad0a6d4e422ff2b57ada2e5a810688220f7db7332759c7b98972de82bf3341"
+	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
 	}
 
 **Important:** Do not have the the auth token in the headers for endpoints that don't require it.
-
-## Anime Endpoints
-	/anime/entry/<id>
-	/anime/random
-
-### Anime Entry
-Performing a GET request to:
-
-	/anime/entry/<id>
-
-will respond with the data for that specific anime entry.
-
-Example request:
-
-	/anime/entry/18562?format=json
-
-Example response:
-
-	{
-	    "id": 18562,
-	    "title": "Tokyo Ghoul",
-	    "source": "https://anidb.net/anime/10401",
-	    "anime_type": "TV",
-	    "num_episodes": 12,
-	    "status": "Finished",
-	    "year": 2014,
-	    "picture": "https://cdn.myanimelist.net/images/anime/5/64449.jpg",
-	    "tags": [
-	        "Action",
-	        "Crime",
-	        "Dark fantasy",
-	        "Drama",
-	        "Gore",
-	        "Horror",
-	        "Human experimentation",
-	        "Male protagonist",
-	        "Mystery",
-	        "Police",
-	        "Psychological",
-	        "Seinen",
-	        "Supernatural",
-	        "Survival",
-	        "Tragedy",
-	        "Violence"
-	    ]
-	}
-
-### Anime Random
-Performing a GET request to:
-
-	/anime/random
-
-will respond with the data for a random anime entry.
-
-Example request:
-
-	/anime/random?format=json
-
-Example response:
-
-	{
-	    "id": 12839,
-	    "title": "Nisekoi",
-	    "source": "https://anidb.net/anime/9903",
-	    "anime_type": "TV",
-	    "num_episodes": 20,
-	    "status": "Finished",
-	    "year": 2014,
-	    "picture": "https://cdn.myanimelist.net/images/anime/13/75587.jpg",
-	    "tags": [
-	        "Comedy",
-	        "Female protagonist",
-	        "Gangs",
-	        "Harem",
-	        "Love polygon",
-	        "Love triangle",
-	        "Mafia",
-	        "Male protagonist",
-	        "Romance",
-	        "Romantic comedy",
-	        "School",
-	        "School life",
-	        "Shounen",
-	        "Slice of life"
-	    ]
-	}

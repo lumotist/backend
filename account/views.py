@@ -1,33 +1,38 @@
-from rest_framework import generics, permissions
+from rest_framework import status
 from rest_framework.response import Response
-from knox.models import AuthToken
-from .serializers import UserSerializer, RegisterSerializer
-from django.contrib.auth import login
-from rest_framework import permissions
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from knox.views import LoginView as KnoxLoginView
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from .serializers import UserSerializer, RegistrationSerializer
+from rest_framework.authtoken.models import Token
 
-class RegisterAPI(generics.GenericAPIView):
-	permission_classes = [permissions.AllowAny]
-	serializer_class = RegisterSerializer
-
-	def post(self, request, *args, **kwargs):
-		serializer = self.get_serializer(data=request.data)
-		serializer.is_valid(raise_exception=True)
+@api_view(["POST"])
+def register(request):
+	serializer = RegistrationSerializer(data=request.data)
+	data = {}
+	if serializer.is_valid():
 		user = serializer.save()
+		data["success"] = True
+		data["token"] = Token.objects.get(user=user).key
+	else:
+		data["success"] = False
+		data["errors"] = serializer.errors
 
-		return Response({
-			"user": UserSerializer(user, context=self.get_serializer_context()).data,
-			"token": AuthToken.objects.create(user)[1]
-			})
+	return Response(data)
 
-class LoginAPI(KnoxLoginView):
-	permission_classes = [permissions.AllowAny,]
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def logout(request):
+	data = {}
+	request.user.auth_token.delete()
+	data["success"] = True
 
-	def post(self, request, format=None):
-		serializer = AuthTokenSerializer(data=request.data)
-		serializer.is_valid(raise_exception=True)
-		user = serializer.validated_data['user']
-		login(request, user)
+	return Response(data)
 
-		return super(LoginAPI, self).post(request, format=None)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def profile(request):
+	data = {}
+	data["success"] = True
+	data["data"] = UserSerializer(request.user).data
+
+	return Response(data)
