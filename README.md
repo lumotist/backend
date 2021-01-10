@@ -13,14 +13,18 @@
 
 ### Account field restrictions
 
-`username`
+**username:**
+
 Max length: `20`
+
 Valid characters: Letters, numbers, `_` and `-`
 
-`email`
+**email:**
+
 Max length: `256`
 
-`password`
+**password:**
+
 Max length: `128`
 
 ### Permissions
