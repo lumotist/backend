@@ -4,6 +4,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .serializers import UserSerializer, RegistrationSerializer
 from rest_framework.authtoken.models import Token
+from django.utils.datastructures import MultiValueDictKeyError
+from django.db import IntegrityError
+from .models import USERNAME_MAX_LENGTH, EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH
 
 @api_view(["POST"])
 def register(request):
@@ -54,14 +57,14 @@ def change_email(request):
 	try:
 		password = request.data["password"]
 		new_email = request.data["new_email"]
-	except:
+	except MultiValueDictKeyError:
 		data["success"] = False
 		data["detail"] = "Missing fields."
 		return Response(data)
 
-	if len(new_email) > 256:
+	if len(new_email) > EMAIL_MAX_LENGTH:
 		data["success"] = False
-		data["detail"] = "Ensure the new email has no more than 256 characters."
+		data["detail"] = f"Ensure the new email has no more than {EMAIL_MAX_LENGTH} characters."
 
 	elif not request.user.check_password(password):
 		data["success"] = False
@@ -72,9 +75,48 @@ def change_email(request):
 		data["detail"] = "New email cannot be the same as your current email."
 
 	else:
-		request.user.email = new_email
-		request.user.save()
-		data["success"] = True
+		try:
+			request.user.email = new_email
+			request.user.save()
+			data["success"] = True
+		except IntegrityError:
+			data["success"] = False
+			data["detail"] = "That email is already in use."
+
+	return Response(data)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def change_username(request):
+	data = {}
+	try:
+		password = request.data["password"]
+		new_username = request.data["new_username"]
+	except MultiValueDictKeyError:
+		data["success"] = False
+		data["detail"] = "Missing fields."
+		return Response(data)
+
+	if len(new_username) > USERNAME_MAX_LENGTH:
+		data["success"] = False
+		data["detail"] = f"Ensure the new username has no more than {USERNAME_MAX_LENGTH} characters."
+
+	elif not request.user.check_password(password):
+		data["success"] = False
+		data["detail"] = "Invalid password."
+
+	elif new_username == request.user.username:
+		data["success"] = False
+		data["detail"] = "New username cannot be the same as your current username."
+
+	else:
+		try:
+			request.user.username = new_username
+			request.user.save()
+			data["success"] = True
+		except IntegrityError:
+			data["success"] = False
+			data["detail"] = "That username is already in use."
 
 	return Response(data)
 
@@ -85,14 +127,14 @@ def change_password(request):
 	try:
 		old_password = request.data["old_password"]
 		new_password = request.data["new_password"]
-	except:
+	except MultiValueDictKeyError:
 		data["success"] = False
 		data["detail"] = "Missing fields."
 		return Response(data)
 
-	if len(new_password) > 128:
+	if len(new_password) > PASSWORD_MAX_LENGTH:
 		data["success"] = False
-		data["detail"] = "Ensure the new password has no more than 128 characters."
+		data["detail"] = f"Ensure the new password has no more than {PASSWORD_MAX_LENGTH} characters."
 
 	elif not request.user.check_password(old_password):
 		data["success"] = False

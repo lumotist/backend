@@ -8,6 +8,7 @@
 	/account/profile
 	/account/delete
 	/account/change_email
+	/account/change_username
 	/account/change_password
 
 ### Permissions
@@ -177,6 +178,40 @@ ERROR_DETAIL can be the following:
 	"Ensure the new email has no more than 256 characters."
 	"Invalid password."
 	"New email cannot be the same as your current email."
+	"That email is already in use."
+
+To see example auth token error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
+
+### Change Username **(auth token required)**
+Performing a POST request to `/account/change_username` with the users `password` and `new_username` will change the users username.
+
+Example POST request:
+
+	{
+	    "new_username": "test2",
+	    "password": "test"
+	}
+
+Example successful response:
+
+	{
+	    "success": true
+	}
+
+Example error responses:
+
+	{
+	    "success": false,
+	    "detail": ERROR_DETAIL
+	}
+
+ERROR_DETAIL can be the following:
+
+	"Missing fields."
+	"Ensure the new email has no more than 256 characters."
+	"Invalid password."
+	"New email cannot be the same as your current email."
+	"That username is already in use."
 
 To see example auth token error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
 

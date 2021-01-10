@@ -6,9 +6,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
+USERNAME_MAX_LENGTH = 20
+EMAIL_MAX_LENGTH = 256
+PASSWORD_MAX_LENGTH = 128
+
 class User(AbstractUser):
-	username = models.CharField(max_length=32, unique=True)
-	email = models.EmailField(max_length=256, unique=True)
+	username = models.CharField(max_length=USERNAME_MAX_LENGTH, unique=True)
+	email = models.EmailField(max_length=EMAIL_MAX_LENGTH, unique=True)
 	created = models.DateTimeField(auto_now_add=True)
 	
 	# Extra required fields
