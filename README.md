@@ -128,7 +128,8 @@ Example successful response:
 	        "id": 2,
 	        "username": "test1",
 	        "email": "test@test.com1",
-	        "created": "09-01-2021"
+	        "created": "09-01-2021",
+	        "receive_emails": false
 	    }
 	}
 
