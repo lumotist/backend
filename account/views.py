@@ -97,6 +97,12 @@ def change_username(request):
 		data["detail"] = "Missing fields."
 		return Response(data)
 
+	for char in new_username:
+		if not(char.isalpha()) and not(char.isdigit()) and char != "_" and char != "-":
+			data["success"] = False
+			data["detail"] = "Username contains invalid characters."
+			return Response(data)
+
 	if len(new_username) > USERNAME_MAX_LENGTH:
 		data["success"] = False
 		data["detail"] = f"Ensure the new username has no more than {USERNAME_MAX_LENGTH} characters."

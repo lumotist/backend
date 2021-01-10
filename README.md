@@ -11,6 +11,18 @@
 	/account/change_username
 	/account/change_password
 
+### Account field restrictions
+
+`username`
+Max length: `20`
+Valid characters: Letters, numbers, `_` and `-`
+
+`email`
+Max length: `256`
+
+`password`
+Max length: `128`
+
 ### Permissions
 Whenever using a endpoint that needs authentication, add the auth token in the **headers**.
 
@@ -66,6 +78,12 @@ Example error response:
 	            "user with this email already exists."
 	        ]
 	    }
+	}
+
+If all the fields are valid, but the username contains invalid characters you will get this response:
+
+	{
+	    "detail": "Username contains invalid characters."
 	}
 
 ### Login
@@ -211,6 +229,7 @@ Example error responses:
 ERROR_DETAIL can be the following:
 
 	"Missing fields."
+	"Username contains invalid characters."
 	"Ensure the new email has no more than 256 characters."
 	"Invalid password."
 	"New email cannot be the same as your current email."
