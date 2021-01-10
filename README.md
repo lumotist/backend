@@ -1,4 +1,4 @@
-**Currently deployed at:** [api-lumotist.herokuapp.com](https://api-lumotist.herokuapp.com])
+**Currently deployed at:** [api-lumotist.herokuapp.com](https://api-lumotist.herokuapp.com)
 
 # API Endpoints
 ## Account Endpoints
@@ -7,8 +7,6 @@
 	/account/logout
 	/account/profile
 	/account/delete
-	/account/get_pictures
-	/acount/set_picture
 
 ### Permissions
 Whenever using a endpoint that needs authentication, add the auth token in the **headers**.
@@ -146,42 +144,3 @@ Example successful response:
 	}
 
 To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
-
-## Get Pictures **(auth token required)**
-Performing a GET request to `/account/get_pictures` with the users token in the **headers** will return all the pictures that the user can set as their profile picture.
-
-Example GET request **(headers)**:
-
-	{
-	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
-	}
-
-Successful response will return the `profile_pictures` dictionary in [profile_pictures.py](https://github.com/lumotist/backend/blob/master/account/profile_pictures.py).
-
-To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
-
-### Set Picture
-Performing a POST request to `/account/set_picture` with the picture `id` from `/account/get_pictures` will update the users profile picture.
-
-**Note:** After registration, by default the users profile picture is set to `default_profile_picture` in [profile_pictures.py](https://github.com/lumotist/backend/blob/master/account/profile_pictures.py).
-
-Example POST request:
-
-	{
-	    "id": 6
-	}
-
-Example successful response:
-
-	{
-	    "success": true
-	}
-
-Example error response:
-
-	{
-	    "success": false,
-	    "error": "Invalid picture id."
-	}
-
-To see example auth error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
