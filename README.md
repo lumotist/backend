@@ -37,6 +37,8 @@ Example error response for missing auth token:
 ### Register
 Performing a POST request to `/account/register` with the new users `username`, `email` and `password` will register that user, and return a auth token.
 
+Optionally you can provie a boolean field `receive_emails` if the user wants to receive email news, updates etc. Not providing it will by default set it to `False`.
+
 Example POST request:
 
 	{
