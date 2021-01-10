@@ -7,6 +7,8 @@
 	/account/logout
 	/account/profile
 	/account/delete
+	/account/change_email
+	/account/change_password
 
 ### Permissions
 Whenever using a endpoint that needs authentication, add the auth token in the **headers**.
@@ -33,6 +35,7 @@ Example error response for missing auth token:
 
 ### Register
 Performing a POST request to `/account/register` with the new users `username`, `email` and `password` will register that user, and return a auth token.
+
 Example POST request:
 
 	{
@@ -144,3 +147,67 @@ Example successful response:
 	}
 
 To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
+
+### Change Email **(auth token required)**
+Performing a POST request to `/account/change_email` with the users `password` and `new_email` will change the users email.
+
+Example POST request:
+
+	{
+	    "new_email": "test2@test.com",
+	    "password": "test"
+	}
+
+Example successful response:
+
+	{
+	    "success": true
+	}
+
+Example error responses:
+
+	{
+	    "success": false,
+	    "detail": ERROR_DETAIL
+	}
+
+ERROR_DETAIL can be the following:
+
+	"Missing fields."
+	"Ensure the new email has no more than 256 characters."
+	"Invalid password."
+	"New email cannot be the same as your current email."
+
+To see example auth token error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
+
+### Change Password **(auth token required)**
+Performing a POST request to `/account/change_password` with the users `old_password` and `new_password` will change the users password.
+
+Example POST request:
+
+	{
+	    "old_password": "test",
+	    "new_password": "test2"
+	}
+
+Example successful response:
+
+	{
+	    "success": true
+	}
+
+Example error responses:
+
+	{
+	    "success": false,
+	    "detail": ERROR_DETAIL
+	}
+
+ERROR_DETAIL can be the following:
+
+	"Missing fields."
+	"Ensure the new password has no more than 128 characters."
+	"Invalid old password."
+	"New password cannot be the same as your current password."
+
+To see example auth token error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
