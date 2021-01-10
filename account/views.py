@@ -33,7 +33,7 @@ def logout(request):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def profile(request):
+def user(request):
 	data = {}
 	data["success"] = True
 	data["data"] = UserSerializer(request.user).data

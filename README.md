@@ -5,7 +5,7 @@
 	/account/register
 	/account/login
 	/account/logout
-	/account/profile
+	/account/user
 	/account/delete
 	/account/change_email
 	/account/change_username
@@ -13,17 +13,17 @@
 
 ### Account field restrictions
 
-**username:**
+**username**
 
 Max length: `20`
 
 Valid characters: Letters, numbers, `_` and `-`
 
-**email:**
+**email**
 
 Max length: `256`
 
-**password:**
+**password**
 
 Max length: `128`
 
@@ -133,8 +133,8 @@ Example successful response:
 
 To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
 
-### Profile **(auth token required)**
-Performing a GET request to `/account/profile` with the users token in the **headers** will return the data for that user.
+### User **(auth token required)**
+Performing a GET request to `/account/user` with the users token in the **headers** will return the data for that user.
 
 Example GET request **(headers)**:
 
