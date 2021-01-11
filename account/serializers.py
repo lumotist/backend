@@ -13,10 +13,15 @@ class RegistrationSerializer(serializers.ModelSerializer):
 		extra_kwargs = {"password": {"write_only": True}}
 
 	def save(self):
+		try:
+			receive_emails = validated_data["receive_emails"]
+		except KeyError:
+			receive_emails = False
+		
 		user = User(
 			username=self.validated_data["username"],
 			email=self.validated_data["email"],
-			receive_emails=self.validated_data["receive_emails"],
+			receive_emails=receive_emails,
 			)
 
 		for char in self.validated_data["username"]:
