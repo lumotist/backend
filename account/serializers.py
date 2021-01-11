@@ -14,7 +14,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 	def save(self):
 		try:
-			receive_emails = validated_data["receive_emails"]
+			receive_emails = self.validated_data["receive_emails"]
 		except KeyError:
 			receive_emails = False
 		
