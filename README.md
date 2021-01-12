@@ -194,16 +194,21 @@ Example error responses:
 
 	{
 	    "success": false,
-	    "detail": ERROR_DETAIL
+	    "errors": {
+	        "password": [
+	            "Invalid password."
+	        ]
+	    }
 	}
 
-ERROR_DETAIL can be the following:
-
-	"Missing fields."
-	"Ensure the new email has no more than 256 characters."
-	"Invalid password."
-	"New email cannot be the same as your current email."
-	"That email is already in use."
+	{
+	    "success": false,
+	    "errors": {
+	        "new_email": [
+	            "That email is already in use."
+	        ]
+	    }
+	}
 
 To see example auth token error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
 

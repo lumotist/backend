@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, USERNAME_MAX_LENGTH, EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -29,6 +29,35 @@ class RegistrationSerializer(serializers.ModelSerializer):
 				raise serializers.ValidationError({"detail": "Username contains invalid characters."})
 
 		user.set_password(self.validated_data["password"])
+		user.save()
+
+		return user
+
+class ChangeEmailSerializer(serializers.Serializer):
+	new_email = serializers.EmailField(max_length=EMAIL_MAX_LENGTH, write_only=True, required=True)
+	password = serializers.CharField(max_length=PASSWORD_MAX_LENGTH, write_only=True, required=True)
+
+	def validate(self, data):
+		user = self.context['request'].user
+		new_email = data["new_email"]
+		password = data["password"]
+
+		if not user.check_password(password):
+			raise serializers.ValidationError({'password': ("Invalid password.")})
+
+		if user.email == new_email:
+			raise serializers.ValidationError({'new_email': ("New email cannot be the same as your current email.")})
+
+		if User.objects.filter(email=new_email):
+			raise serializers.ValidationError({'new_email': ("That email is already in use.")})
+
+		return data
+
+	def save(self):
+		user = self.context['request'].user
+		new_email = self.validated_data['new_email']
+
+		user.email = new_email
 		user.save()
 
 		return user

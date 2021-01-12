@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSerializer, RegistrationSerializer
+from .serializers import UserSerializer, RegistrationSerializer, ChangeEmailSerializer
 from rest_framework.authtoken.models import Token
 from django.utils.datastructures import MultiValueDictKeyError
 from django.db import IntegrityError
@@ -56,37 +56,19 @@ def delete(request):
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def change_email(request):
+	serializer = ChangeEmailSerializer(data=request.data, context={'request': request})
 	data = {}
-	try:
-		password = request.data["password"]
-		new_email = request.data["new_email"]
-	except MultiValueDictKeyError:
-		data["success"] = False
-		data["detail"] = "Missing fields."
-		return Response(data)
-
-	if len(new_email) > EMAIL_MAX_LENGTH:
-		data["success"] = False
-		data["detail"] = f"Ensure the new email has no more than {EMAIL_MAX_LENGTH} characters."
-
-	elif not request.user.check_password(password):
-		data["success"] = False
-		data["detail"] = "Invalid password."
-
-	elif new_email == request.user.email:
-		data["success"] = False
-		data["detail"] = "New email cannot be the same as your current email."
-
+	if serializer.is_valid():
+		serializer.save()
+		data["success"] = True
 	else:
-		try:
-			request.user.email = new_email
-			request.user.save()
-			data["success"] = True
-		except IntegrityError:
-			data["success"] = False
-			data["detail"] = "That email is already in use."
+		data["success"] = False
+		data["errors"] = serializer.errors
 
-	return Response(data)
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
