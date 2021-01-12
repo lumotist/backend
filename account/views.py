@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSerializer, RegistrationSerializer, ChangeEmailSerializer
+from .serializers import UserSerializer, RegistrationSerializer, ChangeEmailSerializer, ChangeUsernameSerializer, ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
 from django.utils.datastructures import MultiValueDictKeyError
 from django.db import IntegrityError
@@ -73,71 +73,33 @@ def change_email(request):
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def change_username(request):
+	serializer = ChangeUsernameSerializer(data=request.data, context={'request': request})
 	data = {}
-	try:
-		password = request.data["password"]
-		new_username = request.data["new_username"]
-	except MultiValueDictKeyError:
-		data["success"] = False
-		data["detail"] = "Missing fields."
-		return Response(data)
-
-	for char in new_username:
-		if not(char.isalpha()) and not(char.isdigit()) and char != "_" and char != "-":
-			data["success"] = False
-			data["detail"] = "Username contains invalid characters."
-			return Response(data)
-
-	if len(new_username) > USERNAME_MAX_LENGTH:
-		data["success"] = False
-		data["detail"] = f"Ensure the new username has no more than {USERNAME_MAX_LENGTH} characters."
-
-	elif not request.user.check_password(password):
-		data["success"] = False
-		data["detail"] = "Invalid password."
-
-	elif new_username == request.user.username:
-		data["success"] = False
-		data["detail"] = "New username cannot be the same as your current username."
-
+	if serializer.is_valid():
+		serializer.save()
+		data["success"] = True
 	else:
-		try:
-			request.user.username = new_username
-			request.user.save()
-			data["success"] = True
-		except IntegrityError:
-			data["success"] = False
-			data["detail"] = "That username is already in use."
+		data["success"] = False
+		data["errors"] = serializer.errors
 
-	return Response(data)
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def change_password(request):
+	serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
 	data = {}
-	try:
-		old_password = request.data["old_password"]
-		new_password = request.data["new_password"]
-	except MultiValueDictKeyError:
-		data["success"] = False
-		data["detail"] = "Missing fields."
-		return Response(data)
-
-	if len(new_password) > PASSWORD_MAX_LENGTH:
-		data["success"] = False
-		data["detail"] = f"Ensure the new password has no more than {PASSWORD_MAX_LENGTH} characters."
-
-	elif not request.user.check_password(old_password):
-		data["success"] = False
-		data["detail"] = "Invalid old password."
-
-	elif request.user.check_password(new_password):
-		data["success"] = False
-		data["detail"] = "New password cannot be the same as your current password."
-
-	else:
-		request.user.set_password(new_password)
-		request.user.save()
+	if serializer.is_valid():
+		serializer.save()
 		data["success"] = True
+	else:
+		data["success"] = False
+		data["errors"] = serializer.errors
 
-	return Response(data)
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
