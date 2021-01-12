@@ -6,8 +6,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
+USERNAME_MIN_LENGTH = 3
 USERNAME_MAX_LENGTH = 20
+
+EMAIL_MIN_LENGTH = 3
 EMAIL_MAX_LENGTH = 256
+
+PASSWORD_MIN_LENGTH = 6
 PASSWORD_MAX_LENGTH = 128
 
 class User(AbstractUser):

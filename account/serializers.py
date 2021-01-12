@@ -1,32 +1,52 @@
 from rest_framework import serializers
-from .models import User, USERNAME_MAX_LENGTH, EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH
+from .models import User
+from .models import (
+	USERNAME_MAX_LENGTH,
+	USERNAME_MIN_LENGTH,
+	EMAIL_MAX_LENGTH,
+	EMAIL_MIN_LENGTH,
+	PASSWORD_MIN_LENGTH,
+	PASSWORD_MAX_LENGTH
+	)
+
+USERNAME_FIELD = serializers.CharField(min_length=USERNAME_MIN_LENGTH, max_length=USERNAME_MAX_LENGTH, write_only=True, required=True)
+EMAIL_FIELD = serializers.EmailField(min_length=EMAIL_MIN_LENGTH, max_length=EMAIL_MAX_LENGTH, write_only=True, required=True)
+PASSWORD_FIELD = serializers.CharField(min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_LENGTH, write_only=True, required=True)
+RECEIVE_EMAILS_FIELD = serializers.BooleanField(write_only=True, required=False)
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
 		fields = ["id", "username", "email", "created", "receive_emails"]
 
-class RegistrationSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = User
-		fields = ["username", "email", "password", "receive_emails"]
-		extra_kwargs = {"password": {"write_only": True}}
+class RegistrationSerializer(serializers.Serializer):
+	username = USERNAME_FIELD
+	email = EMAIL_FIELD
+	password = PASSWORD_FIELD
+	receive_emails = RECEIVE_EMAILS_FIELD
+	
+	def validate(self, data):
+		username = data["username"]
+		email = data["email"]
+
+		for char in username:
+			if not(char.isalpha()) and not(char.isdigit()) and (char != "_") and (char != "-"):
+				raise serializers.ValidationError({'username': ("Username should only contain letters, numbers, underscores ('_') and dashes ('-').")})
+
+		if User.objects.filter(username=username):
+			raise serializers.ValidationError({'username': ("That username is already in use.")})
+
+		if User.objects.filter(email=email):
+			raise serializers.ValidationError({'email': ("That email is already in use.")})
+
+		return data
 
 	def save(self):
-		try:
-			receive_emails = self.validated_data["receive_emails"]
-		except KeyError:
-			receive_emails = False
-		
 		user = User(
-			username=self.validated_data["username"],
-			email=self.validated_data["email"],
-			receive_emails=receive_emails,
+			username=self.validated_data['username'],
+			email=self.validated_data['email'],
+			receive_emails=self.validated_data['receive_emails']
 			)
-
-		for char in self.validated_data["username"]:
-			if not(char.isalpha()) and not(char.isdigit()) and char != "_" and char != "-":
-				raise serializers.ValidationError({"detail": "Username contains invalid characters."})
 
 		user.set_password(self.validated_data["password"])
 		user.save()
@@ -34,8 +54,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
 		return user
 
 class ChangeEmailSerializer(serializers.Serializer):
-	new_email = serializers.EmailField(max_length=EMAIL_MAX_LENGTH, write_only=True, required=True)
-	password = serializers.CharField(max_length=PASSWORD_MAX_LENGTH, write_only=True, required=True)
+	new_email = EMAIL_FIELD
+	password = PASSWORD_FIELD
 
 	def validate(self, data):
 		user = self.context['request'].user
@@ -63,8 +83,8 @@ class ChangeEmailSerializer(serializers.Serializer):
 		return user
 
 class ChangeUsernameSerializer(serializers.Serializer):
-	new_username = serializers.CharField(max_length=USERNAME_MAX_LENGTH, write_only=True, required=True)
-	password = serializers.CharField(max_length=PASSWORD_MAX_LENGTH, write_only=True, required=True)
+	new_username = USERNAME_FIELD
+	password = PASSWORD_FIELD
 
 	def validate(self, data):
 		user = self.context['request'].user
@@ -92,8 +112,8 @@ class ChangeUsernameSerializer(serializers.Serializer):
 		return user
 
 class ChangePasswordSerializer(serializers.Serializer):
-	new_password = serializers.CharField(max_length=PASSWORD_MAX_LENGTH, write_only=True, required=True)
-	old_password = serializers.CharField(max_length=PASSWORD_MAX_LENGTH, write_only=True, required=True)
+	new_password = PASSWORD_FIELD
+	old_password = PASSWORD_FIELD
 
 	def validate(self, data):
 		user = self.context['request'].user

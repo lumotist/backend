@@ -15,17 +15,17 @@
 
 **username**
 
-Max length: `20`
+Length: `3` to `20`
 
 Valid characters: Letters, numbers, `_` and `-`
 
 **email**
 
-Max length: `256`
+Length: `3` to `256`
 
 **password**
 
-Max length: `128`
+Length: `6` to `128`
 
 ### Permissions
 Whenever using a endpoint that needs authentication, add the auth token in the **headers**.
@@ -38,7 +38,7 @@ Endpoints that require a auth token will have **(auth token required)** in their
 
 **Important:** Do not have the the auth token in the headers for endpoints that don't require it.
 
-Example error response for invalid token:
+Example error response for invalid token (401 Unauthorized):
 
 	{
 	    "detail": "Invalid token."
@@ -63,31 +63,31 @@ Example POST request:
 	    "password": "test"
 	}
 
-Example successful response:
+Example successful response (200 OK):
 
 	{
 	    "success": true,
 	    "token": "b68e6599d205430b37c6d3bde5b174ca3af1f385"
 	}
 
-Example error response:
+Example error responses (400 Bad Request):
+
+	{
+	    "success": false,
+	    "errors": {
+	        "email": [
+	            "That email is already in use."
+	        ]
+	    }
+	}
 
 	{
 	    "success": false,
 	    "errors": {
 	        "username": [
-	            "user with this username already exists."
-	        ],
-	        "email": [
-	            "user with this email already exists."
+	            "Username should only contain letters, numbers, underscores ('_') and dashes ('-')."
 	        ]
 	    }
-	}
-
-If all the fields are valid, but the username contains invalid characters you will get this response:
-
-	{
-	    "detail": "Username contains invalid characters."
 	}
 
 ### Login
@@ -102,13 +102,13 @@ Example POST request:
 	    "password": "test"
 	}
 
-Example successful response:
+Example successful response (200 OK):
 
 	{
 	    "token": "b68e6599d205430b37c6d3bde5b174ca3af1f385"
 	}
 
-Example error response:
+Example error response (400 Bad Request):
 
 	{
 	    "non_field_errors": [
@@ -125,7 +125,7 @@ Example POST request **(headers)**:
 	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
 	}
 
-Example successful response:
+Example successful response (200 OK):
 
 	{
 	    "success": true
@@ -142,7 +142,7 @@ Example GET request **(headers)**:
 	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
 	}
 
-Example successful response:
+Example successful response (200 OK):
 
 	{
 	    "success": true,
@@ -166,7 +166,7 @@ Example DELETE request **(headers)**:
 	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
 	}
 
-Example successful response:
+Example successful response (200 OK):
 
 	{
 	    "success": true
@@ -184,7 +184,7 @@ Example PUT request:
 	    "password": "test"
 	}
 
-Example successful response:
+Example successful response  (200 OK):
 
 	{
 	    "success": true
@@ -222,7 +222,7 @@ Example PUT request:
 	    "password": "test"
 	}
 
-Example successful response:
+Example successful response (200 OK):
 
 	{
 	    "success": true
