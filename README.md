@@ -13,6 +13,8 @@
 
 ### Account field restrictions
 
+**Important:** To not crowd the server with request that will fail, check for these restrictions client side. This will also leave you with less errors to handle.
+
 **username**
 
 Length: `3` to `20`
@@ -91,7 +93,7 @@ Example error responses (400 Bad Request):
 	}
 
 ### Login
-Performing a POST request to `/account/login` with the users `username` and `password` will return a auth token.
+Performing a POST request to `/account/login` with the users `username` or `email` and `password` will return a auth token.
 
 **Note:** If there is already a auth token generated for that user, it will return that auth token.
 
@@ -105,16 +107,31 @@ Example POST request:
 Example successful response (200 OK):
 
 	{
-	    "token": "b68e6599d205430b37c6d3bde5b174ca3af1f385"
+	    "success": true,
+	    "token": "d6565519a0ad8fafd8948ceee76001e7b978e600"
 	}
 
-Example error response (400 Bad Request):
+Example error responses (400 Bad Request):
 
 	{
-	    "non_field_errors": [
-	        "Unable to log in with provided credentials."
-	    ]
+	    "success": false,
+	    "errors": {
+	        "username": [
+	            "This field is required."
+	        ]
+	    }
 	}
+
+	{
+	    "success": false,
+	    "errors": {
+	        "anon_field": [
+	            "Unable to log in with provided credentials."
+	        ]
+	    }
+	}
+
+**Note:** For the `login` route the field in which the errors occur is always `anon_field`, which is short for `anonymous_field`. This is done so that people with malicious intent cannot detect if someone has a account open on the platform. Only errors that happen because of the [account field restrictions](https://github.com/lumotist/backend#account-field-restrictions) have a field name. (so check for them client side pls)
 
 ### Logout **(auth token required)**
 Performing a POST request to `/account/logout` with the users token in the **headers** will delete that auth token.

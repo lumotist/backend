@@ -2,11 +2,14 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSerializer, RegistrationSerializer, ChangeEmailSerializer, ChangeUsernameSerializer, ChangePasswordSerializer
 from rest_framework.authtoken.models import Token
-from django.utils.datastructures import MultiValueDictKeyError
-from django.db import IntegrityError
-from .models import USERNAME_MAX_LENGTH, EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH
+from .serializers import (
+	UserSerializer,
+	RegistrationSerializer,
+	LoginSerializer,
+	ChangeEmailSerializer,
+	ChangeUsernameSerializer,
+	ChangePasswordSerializer)
 
 @api_view(["POST"])
 def register(request):
@@ -16,6 +19,22 @@ def register(request):
 		user = serializer.save()
 		data["success"] = True
 		data["token"] = Token.objects.get(user=user).key
+	else:
+		data["success"] = False
+		data["errors"] = serializer.errors
+
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+def login(request):
+	serializer = LoginSerializer(data=request.data)
+	data = {}
+	if serializer.is_valid():
+		data["success"] = True
+		data["token"] = serializer.get_token()
 	else:
 		data["success"] = False
 		data["errors"] = serializer.errors

@@ -1,10 +1,9 @@
 from django.urls import path
 from . import views
-from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     path('register', views.register, name="account_register"),
-    path('login', obtain_auth_token, name="account_login"),
+    path('login', views.login, name="account_login"),
     path('logout', views.logout, name="account_logout"),
     path('user', views.user, name="account_user"),
     path('delete', views.delete, name="account_delete"),

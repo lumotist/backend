@@ -19,11 +19,7 @@ class User(AbstractUser):
 	username = models.CharField(max_length=USERNAME_MAX_LENGTH, unique=True)
 	email = models.EmailField(max_length=EMAIL_MAX_LENGTH, unique=True)
 	created = models.DateTimeField(auto_now_add=True)
-
 	receive_emails = models.BooleanField(default=False)
-	
-	# Extra required fields
-	REQUIRED_FIELDS = ["email"]
 
 # Create a auth token when saving a user
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

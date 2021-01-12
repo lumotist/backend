@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.authtoken.models import Token
 from .models import User
 from .models import (
 	USERNAME_MAX_LENGTH,
@@ -13,6 +14,9 @@ USERNAME_FIELD = serializers.CharField(min_length=USERNAME_MIN_LENGTH, max_lengt
 EMAIL_FIELD = serializers.EmailField(min_length=EMAIL_MIN_LENGTH, max_length=EMAIL_MAX_LENGTH, write_only=True, required=True)
 PASSWORD_FIELD = serializers.CharField(min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_LENGTH, write_only=True, required=True)
 RECEIVE_EMAILS_FIELD = serializers.BooleanField(write_only=True, required=False)
+
+USERNAME_FIELD_NOT_REQUIRED = serializers.CharField(min_length=USERNAME_MIN_LENGTH, max_length=USERNAME_MAX_LENGTH, write_only=True, required=False)
+EMAIL_FIELD_NOT_REQUIRED = serializers.EmailField(min_length=EMAIL_MIN_LENGTH, max_length=EMAIL_MAX_LENGTH, write_only=True, required=False)
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -52,6 +56,61 @@ class RegistrationSerializer(serializers.Serializer):
 		user.save()
 
 		return user
+
+class LoginSerializer(serializers.Serializer):
+	username = USERNAME_FIELD_NOT_REQUIRED
+	email = EMAIL_FIELD_NOT_REQUIRED
+	password = PASSWORD_FIELD
+	
+	def validate(self, data):
+		try:
+			username = data["username"]
+			self.provided_username = True
+		except KeyError:
+			self.provided_username = False
+
+		try:
+			email = data["email"]
+			self.provided_email = True
+		except KeyError:
+			self.provided_email = False
+
+		password = data["password"]
+
+		if self.provided_username:
+			for char in username:
+				if not(char.isalpha()) and not(char.isdigit()) and (char != "_") and (char != "-"):
+					raise serializers.ValidationError({'anon_field': ("Unable to log in with provided credentials.")})
+
+			self.user = User.objects.filter(username=username).first()
+
+			if not self.user:
+				raise serializers.ValidationError({'anon_field': ("Unable to log in with provided credentials.")})
+
+			if not self.user.check_password(password):
+				raise serializers.ValidationError({'anon_field': ("Unable to log in with provided credentials.")})
+
+		elif self.provided_email:
+			self.user = User.objects.filter(email=email).first()
+
+			if not self.user:
+				raise serializers.ValidationError({'anon_field': ("Unable to log in with provided credentials.")})
+
+			if not self.user.check_password(password):
+				raise serializers.ValidationError({'anon_field': ("Unable to log in with provided credentials.")})
+
+		else:
+			raise serializers.ValidationError({'username': ("This field is required.")})
+
+		return data
+
+	def get_token(self):
+		token = Token.objects.filter(user=self.user).first()
+		if token:
+			return token.key
+		else:
+			return Token.objects.create(user=self.user).key
+
 
 class ChangeEmailSerializer(serializers.Serializer):
 	new_email = EMAIL_FIELD
