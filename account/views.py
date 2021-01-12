@@ -40,7 +40,7 @@ def user(request):
 
 	return Response(data)
 
-@api_view(["POST"])
+@api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def delete(request):
 	data = {}
@@ -50,7 +50,7 @@ def delete(request):
 
 	return Response(data)
 
-@api_view(["POST"])
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def change_email(request):
 	data = {}
@@ -85,7 +85,7 @@ def change_email(request):
 
 	return Response(data)
 
-@api_view(["POST"])
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def change_username(request):
 	data = {}
@@ -126,7 +126,7 @@ def change_username(request):
 
 	return Response(data)
 
-@api_view(["POST"])
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def change_password(request):
 	data = {}
