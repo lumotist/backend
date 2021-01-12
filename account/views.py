@@ -20,7 +20,10 @@ def register(request):
 		data["success"] = False
 		data["errors"] = serializer.errors
 
-	return Response(data)
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
