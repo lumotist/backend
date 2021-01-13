@@ -10,7 +10,9 @@ from .serializers import (
 	DeleteSerializer,
 	ChangeEmailSerializer,
 	ChangeUsernameSerializer,
-	ChangePasswordSerializer)
+	ChangePasswordSerializer,
+	UpdateEmailPrefsSerializer
+	)
 
 @api_view(["POST"])
 def register(request):
@@ -118,6 +120,23 @@ def change_username(request):
 @permission_classes([IsAuthenticated])
 def change_password(request):
 	serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+	data = {}
+	if serializer.is_valid():
+		serializer.save()
+		data["success"] = True
+	else:
+		data["success"] = False
+		data["errors"] = serializer.errors
+
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def update_email_prefs(request):
+	serializer = UpdateEmailPrefsSerializer(data=request.data, context={'request': request})
 	data = {}
 	if serializer.is_valid():
 		serializer.save()

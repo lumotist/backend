@@ -216,3 +216,28 @@ class ChangePasswordSerializer(serializers.Serializer):
 		user.save()
 
 		return user
+
+class UpdateEmailPrefsSerializer(serializers.Serializer):
+	receive_emails = RECEIVE_EMAILS_FIELD
+
+	def validate(self, data):
+		user = self.context['request'].user
+
+		try:
+			receive_emails = data["receive_emails"]
+		except KeyError:
+			raise serializers.ValidationError({'receive_emails': ("This field is required.")})
+		
+		if user.receive_emails == receive_emails:
+			raise serializers.ValidationError({'receive_emails': (f"Receiving emails is already set to {receive_emails}.")})
+
+		return data
+
+	def save(self):
+		user = self.context['request'].user
+		receive_emails = self.validated_data["receive_emails"]
+		
+		user.receive_emails = receive_emails
+		user.save()
+
+		return user
