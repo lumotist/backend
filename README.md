@@ -131,7 +131,7 @@ Example error responses (400 Bad Request):
 	    }
 	}
 
-**Note:** For the `login` route the field in which the errors occur is always `anon_field`, which is short for `anonymous_field`. This is done so that people with malicious intent cannot detect if someone has a account open on the platform. Only errors that happen because of the [account field restrictions](https://github.com/lumotist/backend#account-field-restrictions) have a field name. (so check for them client side pls)
+**Note:** For the `login` route the field in which the errors occur is always `anon_field`, which is short for `anonymous_field`. Only errors that happen because of the [account field restrictions](https://github.com/lumotist/backend#account-field-restrictions) have a field name. (so check for them client side pls)
 
 ### Logout **(auth token required)**
 Performing a POST request to `/account/logout` with the users token in the **headers** will delete that auth token.
@@ -175,12 +175,18 @@ Example successful response (200 OK):
 To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
 
 ### Delete **(auth token required)**
-Performing a DELETE request to `/account/delete` with the users token in the **headers** will delete that user and the auth token.
+Performing a DELETE request to `/account/delete` with the users token in the **headers** and the `password` will delete that user and the auth token.
 
 Example DELETE request **(headers)**:
 
 	{
 	    "Authorization": "Token 2427f839b8a07d89147375921f75444094d38c05"
+	}
+
+**body**
+
+	{
+	    "password": "test"
 	}
 
 Example successful response (200 OK):
@@ -189,7 +195,20 @@ Example successful response (200 OK):
 	    "success": true
 	}
 
-To see example error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
+Example error response (400 Bad Request):
+
+	{
+	    "success": false,
+	    "errors": {
+	        "password": [
+	            "Invalid password."
+	        ]
+	    }
+	}
+
+Errors caused by the [account field restrictions](https://github.com/lumotist/backend#account-field-restrictions) will also be returned. So please check for them client side.
+
+To see example auth token error responses take a look at [Permissions](https://github.com/lumotist/backend#permissions).
 
 ### Change Email **(auth token required)**
 Performing a PUT request to `/account/change_email` with the users `password` and `new_email` will change the users email.
@@ -207,7 +226,7 @@ Example successful response  (200 OK):
 	    "success": true
 	}
 
-Example error responses:
+Example error responses (400 Bad Request):
 
 	{
 	    "success": false,
@@ -245,7 +264,7 @@ Example successful response (200 OK):
 	    "success": true
 	}
 
-Example error responses:
+Example error responses (400 Bad Request):
 
 	{
 	    "success": false,
@@ -277,13 +296,13 @@ Example PUT request:
 	    "new_password": "test2"
 	}
 
-Example successful response:
+Example successful response (200 OK):
 
 	{
 	    "success": true
 	}
 
-Example error responses:
+Example error responses (400 Bad Request):
 
 	{
 	    "success": false,

@@ -111,6 +111,23 @@ class LoginSerializer(serializers.Serializer):
 		else:
 			return Token.objects.create(user=self.user).key
 
+class DeleteSerializer(serializers.Serializer):
+	password = PASSWORD_FIELD
+
+	def validate(self, data):
+		user = self.context['request'].user
+		password = data["password"]
+
+		if not user.check_password(password):
+			raise serializers.ValidationError({'password': ("Invalid password.")})
+
+		return data
+
+	def delete(self):
+		user = self.context['request'].user
+
+		user.auth_token.delete()
+		user.delete()
 
 class ChangeEmailSerializer(serializers.Serializer):
 	new_email = EMAIL_FIELD
@@ -149,6 +166,10 @@ class ChangeUsernameSerializer(serializers.Serializer):
 		user = self.context['request'].user
 		new_username = data["new_username"]
 		password = data["password"]
+
+		for char in new_username:
+			if not(char.isalpha()) and not(char.isdigit()) and (char != "_") and (char != "-"):
+				raise serializers.ValidationError({'new_username': ("New username should only contain letters, numbers, underscores ('_') and dashes ('-').")})
 
 		if not user.check_password(password):
 			raise serializers.ValidationError({'password': ("Invalid password.")})

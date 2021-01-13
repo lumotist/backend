@@ -7,6 +7,7 @@ from .serializers import (
 	UserSerializer,
 	RegistrationSerializer,
 	LoginSerializer,
+	DeleteSerializer,
 	ChangeEmailSerializer,
 	ChangeUsernameSerializer,
 	ChangePasswordSerializer)
@@ -65,12 +66,19 @@ def user(request):
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def delete(request):
+	serializer = DeleteSerializer(data=request.data, context={'request': request})
 	data = {}
-	request.user.auth_token.delete()
-	request.user.delete()
-	data["success"] = True
+	if serializer.is_valid():
+		serializer.delete()
+		data["success"] = True
+	else:
+		data["success"] = False
+		data["errors"] = serializer.errors
 
-	return Response(data)
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
