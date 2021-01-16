@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from account.models import User
 
+WATCHLIST_NAME_MIN_LENGTH = 1
 WATCHLIST_NAME_MAX_LENGTH = 64
 
 class Watchlist(models.Model):
