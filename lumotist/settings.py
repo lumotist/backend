@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
 
-    # Created apps :(
+    # Created apps
     'account.apps.AccountConfig',
     'watchlist.apps.WatchlistConfig',
 ]
