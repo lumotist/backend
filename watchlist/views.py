@@ -37,24 +37,17 @@ def watchlist(request, id):
 		data["error"] = "This watchlist does not exist or it might have been deleted."
 		return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-	# If the request user is the author of the watchlist
-	if request.user == watchlist.author:
+	if watchlist.public:
+		watchlist.views += 1
+		watchlist.save()
 		data["success"] = True
 		data["data"] = WatchlistSerializer(watchlist).data
 
-	# Else if the watchlist is public
-	elif watchlist.public:
-		data["success"] = True
-		data["data"] = WatchlistSerializer(watchlist).data
-
-	# Else if the request user is not the author of the watchlist and the watchlist is not public
 	else:
 		data["success"] = False
 		data["error"] = "This watchlist is not public."
 
 	if data["success"]:
-		watchlist.views += 1
-		watchlist.save()
 		return Response(data)
 	else:
 		return Response(data, status=status.HTTP_400_BAD_REQUEST)
