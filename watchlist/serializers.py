@@ -17,3 +17,17 @@ class WatchlistSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Watchlist
 		fields = ["id", "name", "public", "animes", "author", "created", "updated", "views"]
+
+
+class CreateSerializer(serializers.Serializer):
+	name = NAME_FIELD
+
+	def save(self):
+		watchlist = Watchlist(
+			name=self.validated_data["name"],
+			author=self.context['request'].user
+			)
+		
+		watchlist.save()
+
+		return watchlist
