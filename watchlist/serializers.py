@@ -10,6 +10,7 @@ from .models import (
 ID_FIELD = serializers.IntegerField(write_only=True, required=True)
 NAME_FIELD = serializers.CharField(min_length=WATCHLIST_NAME_MIN_LENGTH, max_length=WATCHLIST_NAME_MAX_LENGTH, write_only=True, required=True)
 PUBLIC_FIELD = serializers.BooleanField(write_only=True, required=True)
+ANIMES_FIELD = serializers.CharField(write_only=True, required=True)
 
 class WatchlistSerializer(serializers.ModelSerializer):
 	author = serializers.SlugRelatedField(
@@ -116,6 +117,66 @@ class UpdatePublicSerializer(serializers.Serializer):
 
 	def save(self):
 		self.watchlist.public = self.validated_data['new_public']
+		self.watchlist.save()
+
+		return self.watchlist
+
+class UpdateAnimesSerializer(serializers.Serializer):
+	id = ID_FIELD
+	new_animes = ANIMES_FIELD
+
+	def validate(self, data):
+		user = self.context['request'].user
+		id = data["id"]
+		new_animes = data["new_animes"]
+
+		try:
+			self.watchlist = Watchlist.objects.get(id=id)
+		except ObjectDoesNotExist:
+			raise serializers.ValidationError({'id': ("Invalid watchlist id.")})
+
+		if self.watchlist.author != user:
+			raise serializers.ValidationError({'user': ("The auth user is not the author of the watchlist.")})
+
+		# This part is a little sloppy, maybe try to improve it later
+		# Check if the new animes is a valid array
+		if ("[" not in new_animes) or ("]" not in new_animes):
+			raise serializers.ValidationError({'new_animes': ("A valid array is required.")})
+		elif (new_animes[0] != "[") or (new_animes[len(new_animes) - 1] != "]"):
+			raise serializers.ValidationError({'new_animes': ("A valid array is required.")})
+
+		# Convert it into an array
+		self.validated_new_animes = new_animes.strip("[").strip("]").split(",")
+
+		# Check if each element is a valid integer, if so convert them into a integer
+		for index, element in enumerate(self.validated_new_animes):
+			try:
+				int_element = int(element)
+			except ValueError:
+				raise serializers.ValidationError({'new_animes': ("The elements in the array should be valid integers.")})
+
+			# Check if the integer is out of range
+			if int_element > 2147483647:
+				raise serializers.ValidationError({'new_animes': ("A integer in the array is out of range.")})
+
+			self.validated_new_animes[index] = int_element
+
+		# Check if the array contains more than one of the same anime
+		for anime in self.validated_new_animes:
+			if self.validated_new_animes.count(anime) > 1:
+				raise serializers.ValidationError({'new_animes': ("The watchlist contains more than one of the same anime.")})
+
+		# Check the length of the anime
+		if len(self.validated_new_animes) > 500:
+			raise serializers.ValidationError({'new_animes': ("Maximum number of 500 animes reached.")})
+
+		if self.watchlist.animes == self.validated_new_animes:
+			raise serializers.ValidationError({'new_animes': ("The new animes cannot be the same as the current animes.")})
+
+		return data
+
+	def save(self):
+		self.watchlist.animes = self.validated_new_animes
 		self.watchlist.save()
 
 		return self.watchlist
