@@ -24,6 +24,29 @@ class WatchlistSerializer(serializers.ModelSerializer):
 class CreateSerializer(serializers.Serializer):
 	name = NAME_FIELD
 
+	def validate(self, data):
+		user = self.context['request'].user
+		name = data["name"]
+
+		try:
+			user.watchlists.get(name=name)
+			raise serializers.ValidationError({'name': ("You already have a watchlist with that name.")})
+		except ObjectDoesNotExist:
+			pass
+
+		try:
+			self.watchlist = Watchlist.objects.get(id=id)
+		except ObjectDoesNotExist:
+			raise serializers.ValidationError({'id': ("Invalid watchlist id.")})
+
+		if self.watchlist.author != user:
+			raise serializers.ValidationError({'user': ("The auth user is not the author of the watchlist.")})
+
+		if self.watchlist.name == name:
+			raise serializers.ValidationError({'name': ("The new name cannot be the same as the current name.")})
+
+		return data
+
 	def save(self):
 		watchlist = Watchlist(
 			name=self.validated_data["name"],
