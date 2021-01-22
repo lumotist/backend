@@ -222,11 +222,7 @@ class UpdateEmailPrefsSerializer(serializers.Serializer):
 
 	def validate(self, data):
 		user = self.context['request'].user
-
-		try:
-			receive_emails = data["receive_emails"]
-		except KeyError:
-			raise serializers.ValidationError({'receive_emails': ("This field is required.")})
+		receive_emails = data["receive_emails"]
 		
 		if user.receive_emails == receive_emails:
 			raise serializers.ValidationError({'receive_emails': (f"Receiving emails is already set to {receive_emails}.")})

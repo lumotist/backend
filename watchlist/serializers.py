@@ -7,8 +7,9 @@ from .models import (
 	WATCHLIST_NAME_MAX_LENGTH
 	)
 
-ID_FIELD = serializers.IntegerField()
+ID_FIELD = serializers.IntegerField(write_only=True, required=True)
 NAME_FIELD = serializers.CharField(min_length=WATCHLIST_NAME_MIN_LENGTH, max_length=WATCHLIST_NAME_MAX_LENGTH, write_only=True, required=True)
+PUBLIC_FIELD = serializers.BooleanField(write_only=True, required=True)
 
 class WatchlistSerializer(serializers.ModelSerializer):
 	author = serializers.SlugRelatedField(
@@ -87,6 +88,34 @@ class UpdateNameSerializer(serializers.Serializer):
 
 	def save(self):
 		self.watchlist.name = self.validated_data['new_name']
+		self.watchlist.save()
+
+		return self.watchlist
+
+class UpdatePublicSerializer(serializers.Serializer):
+	id = ID_FIELD
+	new_public = PUBLIC_FIELD
+
+	def validate(self, data):
+		user = self.context['request'].user
+		id = data["id"]
+		new_public = data["new_public"]
+
+		try:
+			self.watchlist = Watchlist.objects.get(id=id)
+		except ObjectDoesNotExist:
+			raise serializers.ValidationError({'id': ("Invalid watchlist id.")})
+
+		if self.watchlist.author != user:
+			raise serializers.ValidationError({'user': ("The auth user is not the author of the watchlist.")})
+
+		if self.watchlist.public == new_public:
+			raise serializers.ValidationError({'new_public': (f"This watchlists public status is already set to {new_public}")})
+
+		return data
+
+	def save(self):
+		self.watchlist.public = self.validated_data['new_public']
 		self.watchlist.save()
 
 		return self.watchlist

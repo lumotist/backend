@@ -7,7 +7,8 @@ from .models import Watchlist
 from .serializers import (
 	WatchlistSerializer,
 	CreateSerializer,
-	UpdateNameSerializer
+	UpdateNameSerializer,
+	UpdatePublicSerializer
 	)
 
 @api_view(["GET"])
@@ -57,6 +58,23 @@ def create(request):
 @permission_classes([IsAuthenticated])
 def update_name(request):
 	serializer = UpdateNameSerializer(data=request.data, context={'request': request})
+	data = {}
+	if serializer.is_valid():
+		serializer.save()
+		data["success"] = True
+	else:
+		data["success"] = False
+		data["errors"] = serializer.errors
+
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def update_public(request):
+	serializer = UpdatePublicSerializer(data=request.data, context={'request': request})
 	data = {}
 	if serializer.is_valid():
 		serializer.save()
