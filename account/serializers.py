@@ -32,7 +32,7 @@ class RegistrationSerializer(serializers.Serializer):
 	def validate(self, data):
 		username = data["username"]
 		email = data["email"]
-		#Impressive
+
 		for char in username:
 			if not(char.isalpha()) and not(char.isdigit()) and (char != "_") and (char != "-"):
 				raise serializers.ValidationError({'username': ("Username should only contain letters, numbers, underscores ('_') and dashes ('-').")})
