@@ -9,7 +9,8 @@ from .serializers import (
 	CreateSerializer,
 	UpdateNameSerializer,
 	UpdatePublicSerializer,
-	UpdateAnimesSerializer
+	UpdateAnimesSerializer,
+	AddAnimeSerializer
 	)
 
 @api_view(["GET"])
@@ -93,6 +94,23 @@ def update_public(request):
 @permission_classes([IsAuthenticated])
 def update_animes(request):
 	serializer = UpdateAnimesSerializer(data=request.data, context={'request': request})
+	data = {}
+	if serializer.is_valid():
+		serializer.save()
+		data["success"] = True
+	else:
+		data["success"] = False
+		data["errors"] = serializer.errors
+
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def add_anime(request):
+	serializer = AddAnimeSerializer(data=request.data, context={'request': request})
 	data = {}
 	if serializer.is_valid():
 		serializer.save()

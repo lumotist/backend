@@ -4,15 +4,19 @@ from .models import Watchlist
 from account.models import User
 from .models import (
 	WATCHLIST_NAME_MIN_LENGTH,
-	WATCHLIST_NAME_MAX_LENGTH
+	WATCHLIST_NAME_MAX_LENGTH,
+	ANIME_ID_MIN_SIZE,
+	ANIME_ID_MAX_SIZE
 	)
 
 ID_FIELD = serializers.IntegerField(write_only=True, required=True)
 NAME_FIELD = serializers.CharField(min_length=WATCHLIST_NAME_MIN_LENGTH, max_length=WATCHLIST_NAME_MAX_LENGTH, write_only=True, required=True)
 PUBLIC_FIELD = serializers.BooleanField(write_only=True, required=True)
 ANIMES_FIELD = serializers.CharField(write_only=True, required=True)
+ANIME_FIELD = serializers.IntegerField(min_value=ANIME_ID_MIN_SIZE, max_value=ANIME_ID_MAX_SIZE, write_only=True, required=True)
 
 class WatchlistSerializer(serializers.ModelSerializer):
+	# Author will be set to the username of the author
 	author = serializers.SlugRelatedField(
         slug_field='username',
         queryset=User.objects.all()
@@ -156,7 +160,7 @@ class UpdateAnimesSerializer(serializers.Serializer):
 				raise serializers.ValidationError({'new_animes': ("The elements in the array should be valid integers.")})
 
 			# Check if the integer is out of range
-			if int_element > 2147483647:
+			if int_element > ANIME_ID_MAX_SIZE:
 				raise serializers.ValidationError({'new_animes': ("A integer in the array is out of range.")})
 
 			self.validated_new_animes[index] = int_element
@@ -177,6 +181,34 @@ class UpdateAnimesSerializer(serializers.Serializer):
 
 	def save(self):
 		self.watchlist.animes = self.validated_new_animes
+		self.watchlist.save()
+
+		return self.watchlist
+
+class AddAnimeSerializer(serializers.Serializer):
+	id = ID_FIELD
+	anime = ANIME_FIELD
+
+	def validate(self, data):
+		user = self.context['request'].user
+		id = data["id"]
+		anime = data["anime"]
+
+		try:
+			self.watchlist = Watchlist.objects.get(id=id)
+		except ObjectDoesNotExist:
+			raise serializers.ValidationError({'id': ("Invalid watchlist id.")})
+
+		if self.watchlist.author != user:
+			raise serializers.ValidationError({'user': ("The auth user is not the author of the watchlist.")})
+
+		if anime in self.watchlist.animes:
+			raise serializers.ValidationError({'anime': (f"This anime is already in the watchlist.")})
+
+		return data
+
+	def save(self):
+		self.watchlist.animes.append(self.validated_data['anime'])
 		self.watchlist.save()
 
 		return self.watchlist
