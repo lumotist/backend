@@ -26,6 +26,10 @@ class WatchlistSerializer(serializers.ModelSerializer):
 		model = Watchlist
 		fields = ["id", "name", "public", "animes", "author", "created", "updated", "views"]
 
+class WatchlistMinimalSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Watchlist
+		fields = ["id", "name", "created", "updated", "views"]
 
 class CreateSerializer(serializers.Serializer):
 	name = NAME_FIELD

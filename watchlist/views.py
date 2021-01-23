@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import Watchlist
 from .serializers import (
 	WatchlistSerializer,
+	WatchlistMinimalSerializer,
 	CreateSerializer,
 	DeleteSerializer,
 	UpdateNameSerializer,
@@ -75,6 +76,16 @@ def delete(request):
 		return Response(data)
 	else:
 		return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_all(request):
+	data = {}
+
+	data["success"] = False
+	data["data"] = WatchlistMinimalSerializer(request.user.watchlists.all(), many=True).data
+
+	return Response(data)
 
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
