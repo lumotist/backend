@@ -82,7 +82,7 @@ def delete(request):
 def get_all(request):
 	data = {}
 
-	data["success"] = False
+	data["success"] = True
 	data["data"] = WatchlistMinimalSerializer(request.user.watchlists.all(), many=True).data
 
 	return Response(data)
