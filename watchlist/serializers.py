@@ -63,6 +63,26 @@ class CreateSerializer(serializers.Serializer):
 
 		return watchlist
 
+class DeleteSerializer(serializers.Serializer):
+	id = ID_FIELD
+
+	def validate(self, data):
+		user = self.context['request'].user
+		id = data["id"]
+
+		try:
+			self.watchlist = Watchlist.objects.get(id=id)
+		except ObjectDoesNotExist:
+			raise serializers.ValidationError({'id': ("Invalid watchlist id.")})
+
+		if self.watchlist.author != user:
+			raise serializers.ValidationError({'user': ("The auth user is not the author of the watchlist.")})
+
+		return data
+
+	def delete(self):
+		self.watchlist.delete()
+
 class UpdateNameSerializer(serializers.Serializer):
 	id = ID_FIELD
 	new_name = NAME_FIELD

@@ -7,6 +7,7 @@ from .models import Watchlist
 from .serializers import (
 	WatchlistSerializer,
 	CreateSerializer,
+	DeleteSerializer,
 	UpdateNameSerializer,
 	UpdatePublicSerializer,
 	UpdateAnimesSerializer,
@@ -49,6 +50,23 @@ def create(request):
 		watchlist = serializer.save()
 		data["success"] = True
 		data["id"] = watchlist.id
+	else:
+		data["success"] = False
+		data["errors"] = serializer.errors
+
+	if data["success"]:
+		return Response(data)
+	else:
+		return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete(request):
+	serializer = DeleteSerializer(data=request.data, context={'request': request})
+	data = {}
+	if serializer.is_valid():
+		serializer.delete()
+		data["success"] = True
 	else:
 		data["success"] = False
 		data["errors"] = serializer.errors
