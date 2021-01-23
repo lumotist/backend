@@ -212,3 +212,31 @@ class AddAnimeSerializer(serializers.Serializer):
 		self.watchlist.save()
 
 		return self.watchlist
+
+class RemoveAnimeSerializer(serializers.Serializer):
+	id = ID_FIELD
+	anime = ANIME_FIELD
+
+	def validate(self, data):
+		user = self.context['request'].user
+		id = data["id"]
+		anime = data["anime"]
+
+		try:
+			self.watchlist = Watchlist.objects.get(id=id)
+		except ObjectDoesNotExist:
+			raise serializers.ValidationError({'id': ("Invalid watchlist id.")})
+
+		if self.watchlist.author != user:
+			raise serializers.ValidationError({'user': ("The auth user is not the author of the watchlist.")})
+
+		if anime not in self.watchlist.animes:
+			raise serializers.ValidationError({'anime': (f"This anime is already not in the watchlist.")})
+
+		return data
+
+	def save(self):
+		self.watchlist.animes.remove(self.validated_data['anime'])
+		self.watchlist.save()
+
+		return self.watchlist
